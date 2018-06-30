@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <style>
+      [v-cloak] {
+          display: none;
+      }
+      html, body{
+        height: 100%;
+        margin: 0;
+      }
+      #app {
+        height: 90%;
+        margin: 0;
+      }
+    </style>
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css"/>
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/vue2-leaflet@1.0.1/dist/vue2-leaflet.js"></script>
+  </head>
+  <body>
+    <div id="app" v-cloak>
+      <l-map :zoom="zoom" :center="center" ref="map">
+        <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
+        <l-marker v-for="marker of markers" :lat-lng="marker"></l-marker>
+      </l-map>
+      <button v-on:click="markCenter">mark center</button>
+    </div>
+    <script>
+    var { LMap, LTileLayer, LMarker } = Vue2Leaflet;
+    let stand = L.latLng(9.99439, 76.29189)
+    let park = L.latLng(9.99126, 76.29292)
+    let stadium = L.latLng(9.99724, 76.30082)
+    new Vue({
+      el: '#app',
+      components: { LMap, LTileLayer, LMarker },
+      mounted () {
+        let map = this.$refs.map.mapObject
+        map.on('moveend', this.showCoordinates)
+        map.on('zoomend', this.showCoordinates)
+      },
+      methods: {
+        showCoordinates () {
+          let map = this.$refs.map.mapObject
+          console.table([map.getBounds().getSouthWest(), map.getCenter(), map.getBounds().getNorthEast()])
+        },
+        markCenter () {
+          let map = this.$refs.map.mapObject
+          this.markers.push(map.getCenter())
+        },
+      }, 
+      data () {
+        return {
+          zoom:13,
+          center: stand,
+          url:'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+          attribution:'&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+          markers: [],
+        }
+      }
+    })
+    </script>
+  </body>
+</html>
